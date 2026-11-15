@@ -7,8 +7,8 @@ from depviz.errors import ConfigError
 from depviz.yamlconf import read_yaml
 
 KEYS = ("package", "repository", "test_mode", "version", "max_depth")
-OPTIONAL = {"mode": "graph"}
-MODES = ("graph", "reverse")
+OPTIONAL = {"mode": "graph", "output_dir": "out"}
+MODES = ("graph", "reverse", "mermaid")
 MIN_DEPTH = 1
 PACKAGE_NAME = re.compile(r"^[A-Za-z0-9_.-]+:[A-Za-z0-9_.-]+$")
 TEST_NAME = re.compile(r"^[A-Z]+$")
@@ -28,6 +28,7 @@ class Config:
     version: str
     max_depth: int
     mode: str = OPTIONAL["mode"]
+    output_dir: str = OPTIONAL["output_dir"]
 
     def items(self):
         """Вернуть пары (ключ, значение) в порядке объявления."""
@@ -122,4 +123,5 @@ def load_config(path):
         version=check_version(raw["version"]),
         max_depth=parse_depth(raw["max_depth"]),
         mode=check_mode(raw["mode"]),
+        output_dir=raw["output_dir"],
     )
