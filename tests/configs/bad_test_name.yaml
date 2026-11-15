@@ -1,0 +1,5 @@
+package: junit
+repository: ../repos/simple.txt
+test_mode: true
+version: 4.13.2
+max_depth: 3

@@ -1,0 +1,6 @@
+# Настройки инструмента (YAML)
+package: com.fasterxml.jackson.core:jackson-databind
+repository: https://repo1.maven.org/maven2
+test_mode: false
+version: 2.17.2
+max_depth: 3

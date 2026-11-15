@@ -1,0 +1,5 @@
+package: junit:junit
+repository: https://repo1.maven.org/maven2
+test_mode: false
+version: '2.17 beta'
+max_depth: 3
