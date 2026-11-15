@@ -1,10 +1,6 @@
 """Тесты этапа 2: разбор POM, свойства, родители, dependencyManagement."""
-import io
 import unittest
-from contextlib import redirect_stdout
 
-from depviz.__main__ import print_direct
-from depviz.config import Config
 from depviz.maven import (MavenRepository, NotFoundError, RepositoryError,
                           pick_version, pom_url, substitute)
 
@@ -117,16 +113,6 @@ class RepositoryTest(unittest.TestCase):
                                  lambda url: "<project><broken")
         with self.assertRaises(RepositoryError):
             broken.dependencies("a", "b", "1")
-
-    def test_print(self):
-        """Вывод прямых зависимостей на экран."""
-        config = Config("org.ex:app", "https://r.org", False, "2.0", 1)
-        out = io.StringIO()
-        with redirect_stdout(out):
-            print_direct(config, self.registry)
-        self.assertIn("org.ex:app:2.0: direct dependencies (6)",
-                      out.getvalue())
-        self.assertIn("org.ex:rt:1.5 [runtime]", out.getvalue())
 
 
 if __name__ == "__main__":

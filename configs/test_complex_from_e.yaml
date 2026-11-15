@@ -1,0 +1,5 @@
+package: E
+repository: ../tests/repos/complex.txt
+test_mode: true
+version: 1.0.0
+max_depth: 10
