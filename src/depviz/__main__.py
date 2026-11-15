@@ -4,6 +4,7 @@ import sys
 
 from depviz.config import load_config
 from depviz.errors import DepVizError
+from depviz.maven import MavenRepository
 
 DEFAULT_CONFIG = "config.yaml"
 
@@ -18,17 +19,34 @@ def parse_args(argv):
     return parser.parse_args(argv)
 
 
-def format_value(value):
-    """Показать значение параметра так, как оно пишется в YAML."""
-    if isinstance(value, bool):
-        return "true" if value else "false"
-    return str(value)
+def describe(dep):
+    """Строка для вывода одной зависимости."""
+    version = dep.version or "(version not found)"
+    return f"  {dep.name}:{version} [{dep.scope}]"
+
+
+def print_direct(config, repository):
+    """Вывести прямые зависимости пакета заданной версии."""
+    group, artifact = config.package.split(":")
+    deps = repository.dependencies(group, artifact, config.version)
+    used = [dep for dep in deps if dep.is_used()]
+    print(f"{config.package}:{config.version}: "
+          f"direct dependencies ({len(used)})")
+    for dep in used:
+        print(describe(dep))
+    skipped = len(deps) - len(used)
+    if skipped:
+        print(f"skipped test/provided/optional dependencies: {skipped}")
 
 
 def run(config):
-    """Выполнить работу приложения: вывести параметры ключ = значение."""
-    for key, value in config.items():
-        print(f"{key} = {format_value(value)}")
+    """Выполнить работу приложения согласно конфигурации."""
+    if config.test_mode:
+        raise DepVizError("test repository mode is not implemented yet")
+    repository = MavenRepository(config.repository)
+    print_direct(config, repository)
+    for warning in repository.warnings:
+        print(f"warning: {warning}", file=sys.stderr)
 
 
 def main(argv=None):

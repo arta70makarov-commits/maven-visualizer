@@ -1,0 +1,5 @@
+package: junit:junit
+version: 4.13.2
+repository: https://no-such-host.invalid/maven2
+test_mode: false
+max_depth: 3
