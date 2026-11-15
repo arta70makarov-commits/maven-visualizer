@@ -1,0 +1,6 @@
+package: D
+repository: ../tests/repos/cycle.txt
+test_mode: true
+version: 1.0.0
+max_depth: 10
+mode: reverse

@@ -7,6 +7,7 @@ label. Поэтому алгоритм обхода графа не зависи
 import re
 
 from depviz.errors import DepVizError
+from depviz.graph import reverse_edges
 from depviz.maven import MavenRepository, RepositoryError
 
 TEST_NAME = re.compile(r"^[A-Z]+$")
@@ -74,6 +75,11 @@ class FileSource:
         """Прямые зависимости пакета."""
         return unique(self.graph.get(node, []))
 
+    def reverse_source(self):
+        """Функция «кто зависит от пакета» для обратного обхода."""
+        reverse = reverse_edges(self.graph)
+        return lambda node: unique(reverse.get(node, []))
+
     @staticmethod
     def label(node):
         """Подпись вершины."""
@@ -113,6 +119,12 @@ class MavenSource:
                 continue
             result.append((dep.name, dep.version))
         return unique(result)
+
+    @staticmethod
+    def reverse_source():
+        """Обратные зависимости в репозитории Maven не поддерживаются."""
+        raise DepVizError(
+            "mode: reverse needs a test repository (test_mode: true)")
 
     @staticmethod
     def label(node):

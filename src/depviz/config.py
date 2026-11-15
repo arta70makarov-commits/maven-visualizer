@@ -7,6 +7,8 @@ from depviz.errors import ConfigError
 from depviz.yamlconf import read_yaml
 
 KEYS = ("package", "repository", "test_mode", "version", "max_depth")
+OPTIONAL = {"mode": "graph"}
+MODES = ("graph", "reverse")
 MIN_DEPTH = 1
 PACKAGE_NAME = re.compile(r"^[A-Za-z0-9_.-]+:[A-Za-z0-9_.-]+$")
 TEST_NAME = re.compile(r"^[A-Z]+$")
@@ -25,22 +27,27 @@ class Config:
     test_mode: bool
     version: str
     max_depth: int
+    mode: str = OPTIONAL["mode"]
 
     def items(self):
         """Вернуть пары (ключ, значение) в порядке объявления."""
-        return [(key, getattr(self, key)) for key in KEYS]
+        return [(key, getattr(self, key))
+                for key in KEYS + tuple(OPTIONAL)]
 
 
 def read_values(path):
     """Прочитать YAML и проверить набор ключей; вернуть словарь строк."""
     data = read_yaml(path)
-    unknown = sorted(set(data) - set(KEYS))
+    unknown = sorted(set(data) - set(KEYS) - set(OPTIONAL))
     if unknown:
         raise ConfigError(f"unknown parameter: {unknown[0]}")
     for key in KEYS:
         if not data.get(key, ""):
             raise ConfigError(f"missing parameter: {key}")
-    return {key: data[key] for key in KEYS}
+    values = {key: data[key] for key in KEYS}
+    for key, default in OPTIONAL.items():
+        values[key] = data.get(key, "") or default
+    return values
 
 
 def parse_bool(value):
@@ -95,6 +102,14 @@ def check_version(value):
     return value
 
 
+def check_mode(value):
+    """Проверить режим вывода."""
+    if value not in MODES:
+        raise ConfigError(
+            f"mode: expected one of {', '.join(MODES)}, got '{value}'")
+    return value
+
+
 def load_config(path):
     """Прочитать файл, проверить все параметры и вернуть Config."""
     raw = read_values(path)
@@ -106,4 +121,5 @@ def load_config(path):
         test_mode=test_mode,
         version=check_version(raw["version"]),
         max_depth=parse_depth(raw["max_depth"]),
+        mode=check_mode(raw["mode"]),
     )

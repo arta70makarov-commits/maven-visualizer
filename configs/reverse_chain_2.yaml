@@ -1,0 +1,6 @@
+package: F
+repository: ../tests/repos/chain.txt
+test_mode: true
+version: 1.0.0
+max_depth: 2
+mode: reverse
